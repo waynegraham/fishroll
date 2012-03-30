@@ -3,7 +3,7 @@
 var App = {
 
     scale    : 1.5,
-    interval : 300,
+    interval : 50,
 
     // Run if we do have camera support
     successCallback : function(stream) {
@@ -26,9 +26,11 @@ var App = {
         var video   = App.video,
             ctx     = App.ctx,
             canvas  = App.canvas,
+            rp      = App.renderPos,
             i;
 
-        if (canvas.width === 0 || canvas.height === 0) {
+        if (canvas.width === 0 || canvas.height === 0 ||
+            rp.width === 0 || rp.height === 0) {
             App.resizeCanvas();
             return;
         }
@@ -38,7 +40,7 @@ var App = {
         ctx.drawImage(
             video,
             0, 0, video.videoWidth, video.videoHeight,
-            0, 0, canvas.width, canvas.height
+            rp.left, rp.top, rp.width, rp.height
         );
 
         App.pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -151,16 +153,20 @@ var App = {
     },
 
     resizeCanvas : function() {
-        var canvas = jQuery(App.canvas),
-            w      = Math.floor(App.scale * App.video.videoWidth),
-            h      = Math.floor(App.scale * App.video.videoHeight);
+        var w  = Math.floor(App.scale * App.video.videoWidth),
+            h  = Math.floor(App.scale * App.video.videoHeight),
+            ch = App.canvas.clientHeight,
+            cw = App.canvas.clientWidth;
 
-        canvas.height(h);
-        canvas.width(w);
-        App.canvas.height = h;
-        App.canvas.width  = w;
+        App.canvas.height = ch;
+        App.canvas.width  = cw;
 
-        // Center it on the screen.
+        App.renderPos = {
+            top    : Math.floor((ch - h) / 2),
+            left   : Math.floor((cw - w) / 2),
+            width  : w,
+            height : h
+        };
     },
 
     loadImg : function(path) {

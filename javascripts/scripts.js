@@ -99,7 +99,14 @@ var App = {
         if (App.playing) { clearInterval(App.playing); }
         App.playing = setInterval(function() {
             App.drawToCanvas(effect);
-        },50);
+        }, 50);
+    },
+
+    stop : function() {
+        if (App.playing != null) {
+            clearInterval(App.playing);
+            delete App.playing;
+        }
     }
 };
 
@@ -112,7 +119,6 @@ App.init = function() {
 
     App.canvas = document.querySelector("#output");
     App.ctx = this.canvas.getContext("2d");
-
 
     // Finally Check if we can run this puppy and go!
     if (navigator.getUserMedia) {

@@ -4,7 +4,6 @@ var App = {
 
     // Run if we do have camera support
     successCallback : function(stream) {
-        console.log('yeah! camera support!');
         if (window.webkitURL) {
             App.video.src = window.webkitURL ? window.webkitURL.createObjectURL(stream) : stream;
         }
@@ -21,12 +20,18 @@ var App = {
 
 
     drawToCanvas : function(effect) {
-        var video = App.video,
-            ctx = App.ctx,
-            canvas = App.canvas,
+        var video   = App.video,
+            ctx     = App.ctx,
+            canvas  = App.canvas,
             i;
 
-        ctx.drawImage(video, 0, 0, 520,426);
+        // TODO: remove
+        App.video.volume = 0;
+
+        ctx.drawImage(video,
+                      0, 0, video.videoWidth, video.videoHeight,
+                      0, 0, canvas.clientWidth, canvas.clientHeight
+                     );
 
         App.pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
 
@@ -59,8 +64,6 @@ var App = {
             var rmax = $('#red input.max').val();
             var gmax = $('#green input.max').val();
             var bmax = $('#blue input.max').val();
-
-            // console.log(rmin,gmin,bmin,rmax,gmax,bmax);
 
             for (i = 0; i < App.pixels.data.length; i=i+4) {
                 red = App.pixels.data[i + 0];
@@ -118,20 +121,18 @@ App.init = function() {
     App.glasses.src = "images/glasses.png";
 
     App.canvas = document.querySelector("#output");
-    App.ctx = this.canvas.getContext("2d");
+    App.canvas.width  = App.canvas.clientWidth;
+    App.canvas.height = App.canvas.clientHeight;
+    App.ctx = App.canvas.getContext("2d");
 
     // Finally Check if we can run this puppy and go!
     if (navigator.getUserMedia) {
         navigator.getUserMedia('video', App.successCallback, App.errorCallback);
     }
-
-    // App.start();
-
 };
 
 
 document.addEventListener("DOMContentLoaded", function() {
-    console.log('ready!');
     App.init();
 }, false);
 

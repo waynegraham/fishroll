@@ -25,11 +25,16 @@ var App = {
             canvas  = App.canvas,
             i;
 
+        if (canvas.width === 0 || canvas.height === 0) {
+            canvas.resizeCanvas();
+            return;
+        }
+
         // TODO: remove
         App.video.volume = 0;
         ctx.drawImage(video, 0, 0);
 
-        App.pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
+        App.pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
         // Hipstergram!
 
@@ -77,7 +82,9 @@ var App = {
         // Glasses!
 
         } else if (effect === 'glasses') {
-            App.face(App.glasses, App.canvas, ctx);
+            App.face(App.glasses, canvas, ctx);
+        } else if (effect === 'fish') {
+            App.face(App.fish, canvas, ctx);
         }
 
 
@@ -148,6 +155,12 @@ var App = {
         App.canvas.width  = w;
 
         // Center it on the screen.
+    },
+
+    loadImg : function(path) {
+        var img = new Image();
+        img.src = path;
+        return img;
     }
 };
 
@@ -155,11 +168,11 @@ App.init = function() {
     // Prep the document
     App.video = document.querySelector('video');
 
-    App.glasses = new Image();
-    App.glasses.src = "images/glasses.png";
+    App.glasses = App.loadImg("images/glasses.png");
+    App.fish    = App.loadImg("images/fish.png");
 
     App.canvas = document.querySelector("#output");
-    App.ctx = App.canvas.getContext("2d");
+    App.ctx    = App.canvas.getContext("2d");
 
     // Finally Check if we can run this puppy and go!
     if (navigator.getUserMedia) {

@@ -77,28 +77,31 @@ var App = {
         // Glasses!
 
         } else if (effect === 'glasses') {
-            var comp = ccv.detect_objects({
-                "canvas"        : ccv.pre(App.canvas),
-                "cascade"       : cascade,
-                "interval"      : 5,
-                "min_neighbors" : 1
-            });
-            var c;
-
-            // Draw glasses on everyone!
-            console.log('comp.length', comp.length);
-            for (i = 0; i < comp.length; i++) {
-                c = comp[i];
-                ctx.drawImage(
-                    App.glasses,
-                    Math.floor(c.x), Math.floor(c.y),
-                    Math.floor(c.width), Math.floor(c.height)
-                );
-            }
-
+            App.face(App.glasses, App.canvas, ctx);
         }
 
 
+    },
+
+    face : function(img, canvas, ctx) {
+        var comp = ccv.detect_objects({
+            "canvas"        : ccv.pre(canvas),
+            "cascade"       : cascade,
+            "interval"      : 5,
+            "min_neighbors" : 1
+        });
+        var c;
+
+        // Draw glasses on everyone!
+        console.log('comp.length', comp.length);
+        for (i = 0; i < comp.length; i++) {
+            c = comp[i];
+            ctx.drawImage(
+                img,
+                Math.floor(c.x), Math.floor(c.y),
+                Math.floor(c.width), Math.floor(c.height)
+            );
+        }
     },
 
     start : function(effect) {

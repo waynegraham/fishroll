@@ -27,11 +27,7 @@ var App = {
 
         // TODO: remove
         App.video.volume = 0;
-
-        ctx.drawImage(video,
-                      0, 0, video.videoWidth, video.videoHeight,
-                      0, 0, canvas.clientWidth, canvas.clientHeight
-                     );
+        ctx.drawImage(video, 0, 0);
 
         App.pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
 
@@ -82,15 +78,22 @@ var App = {
 
         } else if (effect === 'glasses') {
             var comp = ccv.detect_objects({
-                "canvas" : (App.canvas),
-                "cascade" : cascade,
-                "interval" : 5,
+                "canvas"        : ccv.pre(App.canvas),
+                "cascade"       : cascade,
+                "interval"      : 5,
                 "min_neighbors" : 1
             });
+            var c;
 
             // Draw glasses on everyone!
+            console.log('comp.length', comp.length);
             for (i = 0; i < comp.length; i++) {
-                ctx.drawImage(App.glasses, comp[i].x, comp[i].y,comp[i].width, comp[i].height);
+                c = comp[i];
+                ctx.drawImage(
+                    App.glasses,
+                    Math.floor(c.x), Math.floor(c.y),
+                    Math.floor(c.width), Math.floor(c.height)
+                );
             }
 
         }
@@ -99,10 +102,29 @@ var App = {
     },
 
     start : function(effect) {
-        if (App.playing) { clearInterval(App.playing); }
-        App.playing = setInterval(function() {
-            App.drawToCanvas(effect);
-        }, 50);
+        if (App.video == null) {
+            setTimeout(function() { App.start(effect); }, 500);
+            return;
+        }
+
+        if (App.playing) {
+            clearInterval(App.playing);
+        }
+
+        App.resizeCanvas();
+
+        // If it's paused or ended, we can stop.
+        if (App.video.paused || App.video.ended) {
+            $(App.video).on('play', function() {
+                App.playing = setInterval(function() {
+                    App.drawToCanvas(effect);
+                }, 500);
+            });
+        } else {
+            App.playing = setInterval(function() {
+                App.drawToCanvas(effect);
+            }, 500);
+        }
     },
 
     stop : function() {
@@ -110,6 +132,19 @@ var App = {
             clearInterval(App.playing);
             delete App.playing;
         }
+    },
+
+    resizeCanvas : function() {
+        var canvas = jQuery(App.canvas),
+            w      = App.video.videoWidth,
+            h      = App.video.videoHeight;
+
+        canvas.height(h);
+        canvas.width(w);
+        App.canvas.height = h;
+        App.canvas.width  = w;
+
+        // Center it on the screen.
     }
 };
 
@@ -121,8 +156,6 @@ App.init = function() {
     App.glasses.src = "images/glasses.png";
 
     App.canvas = document.querySelector("#output");
-    App.canvas.width  = App.canvas.clientWidth;
-    App.canvas.height = App.canvas.clientHeight;
     App.ctx = App.canvas.getContext("2d");
 
     // Finally Check if we can run this puppy and go!

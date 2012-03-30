@@ -2,6 +2,9 @@
 
 var App = {
 
+    scale    : 1.5,
+    interval : 300,
+
     // Run if we do have camera support
     successCallback : function(stream) {
         if (window.webkitURL) {
@@ -26,13 +29,17 @@ var App = {
             i;
 
         if (canvas.width === 0 || canvas.height === 0) {
-            canvas.resizeCanvas();
+            App.resizeCanvas();
             return;
         }
 
         // TODO: remove
         App.video.volume = 0;
-        ctx.drawImage(video, 0, 0);
+        ctx.drawImage(
+            video,
+            0, 0, video.videoWidth, video.videoHeight,
+            0, 0, canvas.width, canvas.height
+        );
 
         App.pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -112,7 +119,7 @@ var App = {
 
     start : function(effect) {
         if (App.video == null) {
-            setTimeout(function() { App.start(effect); }, 500);
+            setTimeout(function() { App.start(effect); }, App.interval);
             return;
         }
 
@@ -127,12 +134,12 @@ var App = {
             $(App.video).on('play', function() {
                 App.playing = setInterval(function() {
                     App.drawToCanvas(effect);
-                }, 500);
+                }, App.interval);
             });
         } else {
             App.playing = setInterval(function() {
                 App.drawToCanvas(effect);
-            }, 500);
+            }, App.interval);
         }
     },
 
@@ -145,8 +152,8 @@ var App = {
 
     resizeCanvas : function() {
         var canvas = jQuery(App.canvas),
-            w      = App.video.videoWidth,
-            h      = App.video.videoHeight;
+            w      = Math.floor(App.scale * App.video.videoWidth),
+            h      = Math.floor(App.scale * App.video.videoHeight);
 
         canvas.height(h);
         canvas.width(w);

@@ -100,7 +100,6 @@ var App = {
         var c;
 
         // Draw glasses on everyone!
-        console.log('comp.length', comp.length);
         for (i = 0; i < comp.length; i++) {
             c = comp[i];
             ctx.drawImage(
